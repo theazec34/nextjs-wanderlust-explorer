@@ -16,17 +16,17 @@ npm run build
 ### Rutas incluidas
 
 - `/` — Landing con hero y CTA hacia `/experiences`
-- `/experiences` — Grid con barra de búsqueda (regex sensible a mayúsculas) más filtros por categoría y destino enlazados a query params (`search`, `category`, `destination`)
+- `/experiences` — Grid con barra de búsqueda (regex insensible a mayúsculas con `new RegExp(term, 'i')`) más filtros por categoría y destino enlazados a query params (`search`, `category`, `destination`). Ejemplo compartible: `/experiences?search=vela&category=adventure&destination=Croatia` (la categoría se normaliza a la etiqueta canónica del dataset).
 - `/experiences/[id]` — Detalle usando el dataset estático por `id`
 - `/favorites` — Lista de favoritos usando estado React de sesión únicamente
 - `/profile` — Perfil simulado y contador vivo de favoritos
 
 ### Estado y buenas prácticas
 
-- Favoritos: `useState` en `FavoritesProvider` propagado mediante props hasta `ExperienceCard`
-- Hooks de consulta (`useSearchParams`, `usePathname`, `router.replace`) dentro de los componentes cliente del explorador
-- `useExperienceFilters` agrupa la lógica combinada (`new RegExp(..., 'i')` + filtros opcionales)
-- `useEffect` en el explorador ajusta el título del documento cuando cambian los filtros activos
+- **Favoritos:** `useState` en `FavoritesProvider` (raíz de la app). En el App Router, el estado global entre páginas servidor/cliente se expone con un contexto ligero; `ExperienceCard` y acciones de detalle reciben `isFavorite` y `onToggleFavorite` como **props** (sin Redux ni Zustand).
+- **URL del explorador:** `useExplorerQuery` centraliza `useSearchParams`, `usePathname` y `router.replace`; `useExperienceFilters` combina búsqueda y filtros.
+- **`useEffect`:** en el explorador se ajusta el título del documento y se normalizan query params de categoría para reflejar los valores del formulario sin bucles.
+- **Componentes requeridos:** `Navbar`, `SearchBar`, `FilterBar`, `ExperienceCard` (más vistas de página).
 
 ## Design References
 

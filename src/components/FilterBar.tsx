@@ -1,14 +1,11 @@
 'use client';
 
+import { EXPERIENCE_CATEGORIES } from '@/constants/categories';
 import type { ExperienceCategory } from '@/types/experience';
 
 const CATEGORY_OPTIONS: { value: '' | ExperienceCategory; label: string }[] = [
   { value: '', label: 'Todas las categorías' },
-  { value: 'Adventure', label: 'Adventure' },
-  { value: 'Culture', label: 'Culture' },
-  { value: 'Food', label: 'Food' },
-  { value: 'Wellness', label: 'Wellness' },
-  { value: 'Nature', label: 'Nature' },
+  ...EXPERIENCE_CATEGORIES.map((c) => ({ value: c, label: c })),
 ];
 
 type FilterBarProps = {

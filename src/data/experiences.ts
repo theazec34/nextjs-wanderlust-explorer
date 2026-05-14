@@ -1,12 +1,5 @@
+import { EXPERIENCE_CATEGORIES } from '@/constants/categories';
 import type { Experience, ExperienceCategory } from '@/types/experience';
-
-const CATEGORIES: ExperienceCategory[] = [
-  'Adventure',
-  'Culture',
-  'Food',
-  'Wellness',
-  'Nature',
-];
 
 const PLACES: readonly [string, string][] = [
   ['Dubrovnik', 'Croatia'],
@@ -90,7 +83,7 @@ function buildExperiences(): Experience[] {
   const items: Experience[] = [];
 
   for (let i = 1; i <= 100; i += 1) {
-    const category = CATEGORIES[(i - 1) % CATEGORIES.length];
+    const category = EXPERIENCE_CATEGORIES[(i - 1) % EXPERIENCE_CATEGORIES.length];
     const [city, country] = PLACES[(i - 1) % PLACES.length];
     const themes = THEMES_BY_CATEGORY[category];
     const [label, modifier] = themes[(i - 1) % themes.length];

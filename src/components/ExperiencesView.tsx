@@ -1,25 +1,21 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ExperienceCard from '@/components/ExperienceCard';
 import FilterBar from '@/components/FilterBar';
 import SearchBar from '@/components/SearchBar';
 import { useFavoriteControls } from '@/components/FavoritesProvider';
 import { experiences, getDestinationOptions } from '@/data/experiences';
 import { useExperienceFilters } from '@/hooks/useExperienceFilters';
+import { useExplorerQuery } from '@/hooks/useExplorerQuery';
+import { normalizeCategoryQueryParam } from '@/constants/categories';
 
 const destinationOptions = getDestinationOptions();
 
 export default function ExperiencesView() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { pathname, searchParams, search, category, destination, replaceQuery } =
+    useExplorerQuery();
   const { toggleFavorite, isFavorite } = useFavoriteControls();
-
-  const search = searchParams.get('search') ?? '';
-  const category = searchParams.get('category') ?? '';
-  const destination = searchParams.get('destination') ?? '';
 
   const filtered = useExperienceFilters(experiences, {
     search,
@@ -28,11 +24,24 @@ export default function ExperiencesView() {
   });
 
   const visibleRoute = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  const canonicalCategory = normalizeCategoryQueryParam(category);
+
+  useEffect(() => {
+    const raw = category.trim();
+    if (!raw) return;
+    if (!canonicalCategory) {
+      replaceQuery({ category: '' });
+      return;
+    }
+    if (canonicalCategory !== category) {
+      replaceQuery({ category: canonicalCategory });
+    }
+  }, [canonicalCategory, category, replaceQuery]);
 
   useEffect(() => {
     const pieces: string[] = [];
     if (search) pieces.push(`“${search}”`);
-    if (category) pieces.push(category);
+    if (canonicalCategory) pieces.push(canonicalCategory);
     if (destination) pieces.push(destination);
     document.title =
       pieces.length > 0
@@ -41,21 +50,7 @@ export default function ExperiencesView() {
     return () => {
       document.title = 'Wanderlust Labs';
     };
-  }, [search, category, destination]);
-
-  function replaceQuery(partial: Record<string, string | undefined>) {
-    const params = new URLSearchParams(searchParams.toString());
-    Object.entries(partial).forEach(([key, value]) => {
-      const trimmed = value?.trim();
-      if (!trimmed) {
-        params.delete(key);
-      } else {
-        params.set(key, trimmed);
-      }
-    });
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }
+  }, [search, canonicalCategory, destination]);
 
   return (
     <div className="space-y-8">
@@ -83,7 +78,7 @@ export default function ExperiencesView() {
           onChange={(value) => replaceQuery({ search: value })}
         />
         <FilterBar
-          category={category}
+          category={canonicalCategory}
           destination={destination}
           destinationOptions={destinationOptions}
           onCategoryChange={(value) => replaceQuery({ category: value })}
