@@ -6,12 +6,39 @@ compartidos y páginas de detalle dinámicas.
 
 ### Scripts
 
+Instala siempre las dependencias **antes** de arrancar (el repo incluye `package-lock.json` para instalaciones reproducibles):
+
 ```bash
-npm install
+npm ci
+# o, si no usas lockfile en local: npm install
 npm run dev
 npm run lint
 npm run build
 ```
+
+### Si aparece error con `@swc/helpers` (`Cannot find module ... _interop_require_default.cjs`)
+
+Eso suele indicar dependencias incompletas o una carpeta `node_modules` inconsistente.
+
+1. Borra la instalación anterior y vuelve a instalar desde el lock:
+
+   ```bash
+   rm -rf node_modules .next
+   npm ci
+   ```
+
+2. En Windows PowerShell equivalente:
+
+   ```powershell
+   Remove-Item -Recurse -Force node_modules, .next -ErrorAction SilentlyContinue
+   npm ci
+   ```
+
+3. Confirma que existe el archivo tras instalar:
+
+   ```bash
+   ls node_modules/@swc/helpers/cjs/_interop_require_default.cjs
+   ```
 
 ### Rutas incluidas
 
